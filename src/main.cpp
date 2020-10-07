@@ -85,18 +85,19 @@ void handleCompletedMessages(UniversalTelegramBot bot)
     }
 }
 
-void handleAddMessage(char phone[13], char date[18], uint8_t count, uint8_t num, char text[161])
+void handleAddMessage(char text[161], char phone[13], char date[18], uint16_t id, uint8_t count, uint8_t num)
 {
     // определяем индекс сообщения в хранилище
     int i;
     for(i = 0; arr_vault[i].phone; i++) 
     {
-        if (arr_vault[i].phone == phone && arr_vault[i].date == date) 
+        if (arr_vault[i].phone == phone && arr_vault[i].id == id) 
         {
             break;
         }
     }
     // сохраняем сообщение
+    arr_vault[i].id = id;
     arr_vault[i].phone = phone;
     arr_vault[i].date = date;
     arr_vault[i].count = count;
@@ -194,9 +195,10 @@ void loop ()
             Serial.println( F(", текстовое сообщение:") ); Serial.println( textSMS );
             Serial.println( F("--------------------")   );
 
-            handleAddMessage(phoneSMS, dateSMS, countSMS, numSMS, textSMS);
-            handleCompletedMessages(bot);
-        } 
+            handleAddMessage(textSMS, phoneSMS, dateSMS, idSMS, countSMS, numSMS);
+        }
+
+        handleCompletedMessages(bot);
 
         int numNewMessages = bot.getUpdates(bot.last_message_received + 1);
         while(numNewMessages) 
